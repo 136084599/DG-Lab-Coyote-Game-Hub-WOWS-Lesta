@@ -1,0 +1,30 @@
+name: Publish the reviewed Lesta bridge source
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-lesta-bridge.yml']
+permissions:
+  contents: write
+jobs:
+  publish:
+    if: github.repository == '136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: lesta-2026.11.19-r1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Package the reviewed bridge and publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then exit 0; fi
+          git archive --format=zip --prefix=lesta-bridge/ HEAD:lesta-bridge > lesta-coyote-bridge-source.zip
+          sha256sum lesta-coyote-bridge-source.zip > SHA256SUMS.txt
+          gh release create "$TAG" lesta-coyote-bridge-source.zip SHA256SUMS.txt \
+            --target "$GITHUB_SHA" --title '莱服郊狼桥接 · 2026-11-19 源码版' \
+            --notes '11 月 19 日桥接源码，附安全示例、离线运行说明、波形导入修复和校验值。Hub 运行时、配对信息、实际配置与日志单独保管。'

@@ -1,0 +1,200 @@
+[hidden] {
+  display: none !important;
+}
+:root {
+  color-scheme: dark;
+  font-family: system-ui, "Microsoft YaHei", sans-serif;
+  background: #0c1523;
+  color: #e4edf8;
+}
+body {
+  margin: 0;
+  padding: 28px;
+}
+main {
+  max-width: 1120px;
+  margin: auto;
+}
+header,
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+header {
+  justify-content: space-between;
+}
+h1 {
+  font-size: 25px;
+  margin: 0;
+}
+h2 {
+  font-size: 17px;
+  color: #8ccaf6;
+  margin-top: 0;
+}
+.sub {
+  color: #92a8c0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.card {
+  background: #142236;
+  border: 1px solid #2c4059;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 18px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  color: #adc0d7;
+}
+input,
+select,
+textarea {
+  box-sizing: border-box;
+  background: #0b1729;
+  color: #e8f2ff;
+  border: 1px solid #39516d;
+  border-radius: 6px;
+  padding: 9px;
+  font: inherit;
+  min-width: 0;
+}
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+textarea {
+  width: 100%;
+  font-family: monospace;
+  line-height: 1.5;
+}
+button,
+.link {
+  border: 0;
+  border-radius: 7px;
+  padding: 10px 16px;
+  background: #237eb5;
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+}
+.stop {
+  background: #ab3545;
+}
+.secondary {
+  background: #324761;
+}
+#message {
+  white-space: pre-wrap;
+  color: #f9d588;
+  min-height: 25px;
+  margin-top: 14px;
+}
+.stats {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.stat strong {
+  font-size: 26px;
+  display: block;
+  margin-top: 6px;
+  color: #80d7ce;
+}
+.rule {
+  display: grid;
+  grid-template-columns: 145px 65px 105px minmax(150px, 1fr) 110px;
+  gap: 12px;
+  align-items: end;
+  border-top: 1px solid #2c4059;
+  padding: 12px 0;
+}
+.rule b {
+  align-self: center;
+}
+pre {
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 250px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+summary {
+  cursor: pointer;
+  padding: 10px 0;
+}
+@media (max-width: 700px) {
+  body {
+    padding: 12px;
+  }
+  .rule {
+    grid-template-columns: 1fr 1fr;
+  }
+  .card {
+    padding: 14px;
+  }
+}
+
+.setup-path {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.setup-path input {
+  flex: 1;
+  min-width: 220px;
+}
+.checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.checklist div {
+  background: #0d1a2b;
+  padding: 12px;
+  border-radius: 7px;
+  line-height: 1.6;
+  font-size: 13px;
+}
+.ready {
+  color: #80d7ce;
+}
+.pending {
+  color: #f9d588;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+#message {
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  background: #26374b;
+  border-radius: 8px;
+  padding: 10px;
+}
+#message:empty {
+  display: none;
+}
+#setup-hint {
+  overflow-wrap: anywhere;
+}
+#detected-games {
+  max-width: 100%;
+  flex: 1;
+}

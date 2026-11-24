@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>WoWs 联动控制台</title>
+    <link rel="stylesheet" href="/assets/style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>WoWs · 战局联动</h1>
+          <div class="sub">事件、强度、波形，在一个面板里管理</div>
+        </div>
+        <div class="actions">
+          <button id="hub-link" class="secondary">设备连接 / 波形编辑</button
+          ><button class="stop" id="stop">停止并归零</button
+          ><button class="secondary" id="resume">恢复监听</button>
+        </div>
+      </header>
+      <nav class="actions" style="margin-top: 20px">
+        <button id="nav-battle">战局与规则</button
+        ><button id="nav-device" class="secondary">设备与波形</button
+        ><button id="nav-lab" class="secondary">调参实验室</button
+        ><button id="nav-stream" class="secondary">直播 / 悬浮窗</button>
+      </nav>
+      <div id="message" role="status" aria-live="polite"></div>
+      <section id="device-panel" class="card" hidden>
+        <h2>设备与波形 · Coyote Game Hub</h2>
+        <p class="sub">
+          手机 App
+          扫码、电脑蓝牙、通道设置和波形编辑保留在这里。切换到本页会暂停战局控制，避免两套强度设置互相覆盖。设置完成后点击上方“恢复监听”。
+        </p>
+        <div id="device-note" class="sub"></div>
+        <iframe
+          id="device-frame"
+          title="设备连接与波形编辑器"
+          allow="bluetooth"
+          style="
+            width: 100%;
+            height: 75vh;
+            border: 0;
+            border-radius: 10px;
+            margin-top: 15px;
+          "
+          hidden
+        ></iframe>
+        <p class="sub">
+          蓝牙直连需使用支持 Web Bluetooth 的浏览器（如 Chrome /
+          Edge）；浏览器配对权限由你操作。切换页签不会卸载设备页面，蓝牙连接会保持。
+        </p>
+      </section>
+      <section id="stream-panel" class="card" hidden>
+        <h2>直播显示与悬浮窗</h2>
+        <p class="sub">
+          查看此页不会暂停战局，也不会改变强度。原版 OBS
+          显示和皮肤完整保留，原有浏览器源链接无需重建。
+        </p>
+        <div class="grid">
+          <section>
+            <h2>原版设备显示</h2>
+            <p class="sub">
+              沿用 Hub 的设备反馈与原版皮肤。请选择实际使用的会话；广播目标 all
+              不是设备 ID。
+            </p>
+            <label
+              >已知会话<select id="stream-session">
+                <option value="">先连接设备，再刷新会话</option>
+              </select></label
+            ><button
+              id="refresh-stream"
+              class="secondary"
+              style="margin: 10px 0"
+            >
+              刷新会话
+            </button>
+            <label
+              >会话 ID，或原版“添加到 OBS”复制的完整链接<input
+                id="stream-client"
+                type="text"
+                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            /></label>
+            <label style="margin-top: 12px"
+              >原版皮肤<select id="stream-theme">
+                <option value="circle">经典圆盘</option>
+                <option value="bar">横向胶囊</option>
+                <option value="hearts">像素心心血条</option>
+                <option value="battery">拟物电池</option>
+              </select></label
+            >
+            <button id="build-viewer" style="margin: 12px 0">
+              生成原版显示链接</button
+            ><label
+              >OBS 浏览器源 URL<input id="native-url" type="text" readonly
+            /></label>
+            <p id="native-size" class="sub">
+              需要具体会话 ID。历史会话不代表设备现在在线。
+            </p>
+            <div class="actions">
+              <button id="copy-native" class="secondary">复制链接</button
+              ><button id="preview-native" class="secondary">
+                预览原版皮肤</button
+              ><button id="popup-native" class="secondary">打开独立小窗</button>
+            </div>
+          </section>
+          <section>
+            <h2>联动状态条 · 无需会话 ID</h2>
+            <p class="sub">
+              显示本程序已发送的指令和暂停/离线状态。它不是物理设备实测值；需要设备反馈时请选择左侧原版显示。
+            </p>
+            <label
+              >配色<select id="overlay-color">
+                <option value="teal">青绿</option>
+                <option value="blue">浅蓝</option>
+                <option value="amber">琥珀</option>
+              </select></label
+            ><label style="margin-top: 12px"
+              >布局<select id="overlay-layout">
+                <option value="normal">标准</option>
+                <option value="compact">紧凑</option>
+              </select></label
+            >
+            <label style="margin-top: 12px"
+              >状态条 URL<input id="overlay-url" type="text" readonly
+            /></label>
+            <p class="sub">建议浏览器源：440 × 180；背景透明。</p>
+            <div class="actions">
+              <button id="copy-overlay" class="secondary">复制状态条链接</button
+              ><button id="preview-overlay" class="secondary">预览状态条</button
+              ><button id="popup-overlay" class="secondary">
+                置顶 / 独立小窗
+              </button>
+            </div>
+            <p class="sub">
+              支持 Document Picture-in-Picture
+              的浏览器可置顶；其他浏览器打开普通小窗。OBS
+              浏览器源是在直播画面里叠加，不等于游戏内悬浮窗。
+            </p>
+          </section>
+        </div>
+        <div
+          id="stream-preview-box"
+          hidden
+          style="
+            margin-top: 20px;
+            background: repeating-conic-gradient(#172639 0% 25%, #213349 0% 50%)
+              0/24px 24px;
+            padding: 16px;
+            border-radius: 10px;
+          "
+        >
+          <iframe
+            id="stream-preview"
+            title="直播显示预览"
+            style="display: block; border: 0; max-width: 100%; margin: auto"
+            width="440"
+            height="180"
+          ></iframe>
+        </div>
+        <details open style="margin-top: 20px">
+          <summary>第一次接入 OBS：只需这几步</summary>
+          <ol class="sub">
+            <li>在 OBS 的“来源”中点＋，选择“浏览器”，关闭“本地文件”。</li>
+            <li>粘贴上面的 URL，填写建议宽高；不要把控制台首页当作显示源。</li>
+            <li>
+              将该来源放在游戏画面上方，拖动到需要的位置。OBS
+              默认透明背景可保留。
+            </li>
+            <li>
+              OBS
+              与本程序在同一台电脑时使用当前地址。源显示离线时，先确认程序仍在运行，再刷新浏览器源。
+            </li>
+          </ol>
+          <p class="sub">
+            旧版的高级皮肤参数仍在“设备与波形 →
+            添加到OBS”。直播中仅查看显示时用本页，避免进入设备设置模式暂停战局。
+          </p>
+        </details>
+      </section>
+      <div id="battle-panel">
+        <section class="card">
+          <h2>开始使用 · 游戏与连接</h2>
+          <details>
+            <summary>第一次使用？按这个顺序来</summary>
+            <ol class="sub">
+              <li>选游戏目录，点“使用此目录”；游戏关闭时安装采集插件。</li>
+              <li>进入“设备与波形”，扫码或用蓝牙连接，并在 Hub 中启用输出。</li>
+              <li>
+                回到战局页，点击“恢复监听”，再进入训练场。这里的“Hub
+                可达”只代表服务在线。
+              </li>
+              <li>
+                需要直播显示时打开“直播 /
+                悬浮窗”，复制浏览器源链接。调参数前可先去实验室预览。
+              </li>
+            </ol>
+          </details>
+          <p class="sub">
+            自动查找已安装的游戏，也可以选择文件夹或直接粘贴路径。选到 bin64
+            或主程序时，会自动定位到安装根目录。
+          </p>
+          <div class="actions">
+            <button id="detect" class="secondary">自动检测游戏</button
+            ><select id="detected-games" aria-label="检测到的游戏">
+              <option value="">正在检查安装位置…</option>
+            </select>
+          </div>
+          <div class="setup-path">
+            <input
+              id="game-path"
+              aria-label="游戏安装路径"
+              placeholder="请选择船舶世界安装目录"
+            /><button id="browse" class="secondary">选择文件夹…</button
+            ><button id="apply-path">使用此目录</button>
+          </div>
+          <div id="setup-hint" class="sub">正在检查游戏目录…</div>
+          <div class="checklist">
+            <div id="check-game">1 · 游戏目录</div>
+            <div id="check-mod">2 · 采集插件</div>
+            <div id="check-log">3 · 战局日志</div>
+            <div id="check-hub">4 · Hub 连接</div>
+          </div>
+          <div class="actions" style="margin-top: 16px">
+            <button id="install-mod" class="secondary">
+              安装 / 更新采集插件</button
+            ><span class="sub"
+              >安装前请退出游戏，原文件自动备份。新版采集插件需在训练房验证。</span
+            >
+          </div>
+        </section>
+        <section class="card">
+          <div class="stats">
+            <div class="stat">运行状态<strong id="mode">读取中</strong></div>
+            <div class="stat">
+              目标 / 已发送<strong id="strength">—</strong>
+            </div>
+            <div class="stat">基础值<strong id="base">—</strong></div>
+            <div class="stat">
+              最近 HTTP 耗时<strong id="latency">—</strong>
+            </div>
+          </div>
+          <p id="log-status" class="sub"></p>
+          <div class="sub">
+            HTTP 成功表示 Hub 接收请求；实际设备连接和通道上限请在 Hub 确认。
+          </div>
+        </section>
+        <section class="card">
+          <h2>监听与强度</h2>
+          <div class="grid" id="general"></div>
+          <p class="sub">
+            伤害合并窗口不延迟首击；同一窗口后续受击会更新累计伤害，基础增量只加一次。
+          </p>
+        </section>
+        <section class="card">
+          <h2>事件规则</h2>
+          <div id="rules"></div>
+          <p class="sub">
+            临时波形结束后恢复仍有效的状态波形，再恢复默认波形。优先级：临时事件
+            → 进水 → 起火 → 默认。启用事件波形需先设置默认波形。
+          </p>
+        </section>
+        <section class="card">
+          <h2>伤害曲线与衰减</h2>
+          <div class="grid" id="tuning"></div>
+          <label style="margin-top: 15px"
+            >伤害映射 [损失最大血量百分比, 强度值]；阈值须递增<textarea
+              id="segments"
+              rows="4"
+            ></textarea>
+          </label>
+          <p class="sub">
+            factor 是每一步保留比例：0.4 表示剩余
+            40%。基础强度、状态附加值、曲线和随机值相加后，统一限制在最大强度内。
+          </p>
+        </section>
+        <details class="card">
+          <summary>基础值恢复与高级响应</summary>
+          <div class="grid" id="advanced"></div>
+          <p class="sub">
+            游戏采集间隔需要保存后重新安装插件、重启游戏才能生效。其他规则参数保存后即时生效。
+          </p>
+        </details>
+        <details class="card">
+          <summary>设备服务与目标</summary>
+          <div class="grid" id="connection"></div>
+          <p class="sub">
+            改变设备目标会先向旧目标请求归零，然后暂停新目标。保存后检查连接，再点恢复监听。B
+            通道设置和设备强度上限在“设备与波形”页面。
+          </p>
+        </details>
+        <div class="actions" style="margin-top: 18px">
+          <button id="save">保存并应用</button
+          ><button id="reload" class="secondary">重新读取配置</button>
+        </div>
+        <section class="card">
+          <h2>波形库</h2>
+          <div class="actions">
+            <button id="refresh" class="secondary">刷新波形列表</button
+            ><input type="file" id="pulse-file" aria-label="选择波形文件或二维码图片" accept=".json,.json5,.pulses,.pulse,.png,.jpg,.jpeg,.webp" /><button
+              id="import"
+              class="secondary"
+            >
+              导入到公共波形库
+            </button>
+          </div>
+          <p class="sub" id="pulse-status">波形列表尚未读取</p>
+          <p class="sub">
+            可选 App 导出的 .pulse 文本、波形二维码图片或 Hub 的 JSON / JSON5 波形库。图片和 .pulse 以文件名命名。
+            这里导入的是公共波形，不会自动播放；相同项自动跳过，同 ID 内容不同会提示并取消整批导入。只想给一台设备添加时，使用“设备与波形”里的导入按钮。
+          </p>
+        </section>
+        <section class="card">
+          <h2>参数方案</h2>
+          <div class="actions">
+            <a class="link secondary" href="/api/config/export" download
+              >导出当前配置</a
+            ><input type="file" id="profile-file" accept=".json" /><button
+              id="import-profile"
+              class="secondary"
+            >
+              载入配置到表单
+            </button>
+          </div>
+          <p class="sub">
+            导入只填入表单，可以先预览；点击保存后才会应用。导出包含本地游戏路径及设备目标，不包含配对凭据。
+          </p>
+        </section>
+        <details class="card">
+          <summary>完整配置（含设备目标、连杀门槛、波形 ID 列表）</summary>
+          <p class="sub">
+            此编辑器单独保存；设备地址和目标也可在上方表单修改；网页端口需退出后修改
+            config.yaml。规则 pulseId 支持 ID
+            数组，每次事件随机选一个；默认波形支持 Hub 播放列表。
+          </p>
+          <textarea id="raw" rows="20"></textarea
+          ><button id="save-raw">校验并保存完整配置</button>
+        </details>
+        <section class="card">
+          <h2>运行日志</h2>
+          <pre id="logs"></pre>
+        </section>
+      </div>
+      <section id="lab-panel" class="card" hidden>
+        <h2>调参实验室 · 不连接硬件</h2>
+        <p class="sub">
+          使用表单中尚未保存的参数，模拟受击和衰减。随机种子固定，便于比较；这张图预测软件命令，不代表设备实际输出。
+        </p>
+        <div class="grid">
+          <label
+            >场景<select id="scenario">
+              <option value="single">单次受击</option>
+              <option value="repeat">连续受击（0、0.6、1.2 秒）</option>
+              <option value="fire">起火 + 受击 + 灭火</option>
+              <option value="death">受击后沉没</option>
+              <option value="custom">自定义事件</option>
+            </select></label
+          ><label
+            >每次损血 / %<input
+              id="preview-damage"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              value="5" /></label
+          ><label
+            >观察时长 / 秒<input
+              id="preview-duration"
+              type="number"
+              min="1"
+              max="60"
+              value="10"
+          /></label>
+        </div>
+        <details style="margin: 16px 0">
+          <summary>自定义事件 JSON</summary>
+          <textarea id="preview-events" rows="5">
+[{"time":0,"kind":"damage","percent":5},{"time":2,"kind":"kill"}]</textarea
+          >
+        </details>
+        <button id="preview">生成预览曲线</button>
+        <p id="preview-summary" class="sub"></p>
+        <svg
+          id="preview-chart"
+          viewBox="0 0 1000 330"
+          role="img"
+          aria-label="输出强度随时间变化曲线"
+          style="
+            width: 100%;
+            background: #0b1729;
+            border-radius: 10px;
+            margin-top: 14px;
+          "
+        ></svg>
+        <p class="sub">
+          横轴：秒　纵轴：输出强度点；青色为最终强度，灰线为基础值。先在“战局与规则”调参数，再回来重新预览。
+        </p>
+      </section>
+    </main>
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

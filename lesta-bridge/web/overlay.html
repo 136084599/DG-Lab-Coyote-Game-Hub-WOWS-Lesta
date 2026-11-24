@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>WoWs 联动状态条</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+        color: #edf6ff;
+        font-family: system-ui, "Microsoft YaHei", sans-serif;
+        overflow: hidden;
+      }
+      .meter {
+        --accent: #65d8cf;
+        width: 100%;
+        max-width: 640px;
+        min-width: 240px;
+        padding: 18px 22px;
+        background: rgba(12, 23, 38, 0.9);
+        border: 1px solid rgba(146, 184, 218, 0.25);
+        border-radius: 16px;
+      }
+      header,
+      footer,
+      .numbers {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      header {
+        font-size: 13px;
+        color: #b5c9de;
+      }
+      .tag {
+        font-size: 11px;
+        background: #263c52;
+        border-radius: 5px;
+        padding: 3px 7px;
+      }
+      .numbers {
+        margin: 7px 0;
+        justify-content: flex-start;
+        align-items: baseline;
+      }
+      strong {
+        font-size: 42px;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent);
+        line-height: 1.15;
+      }
+      small {
+        font-size: 14px;
+        color: #91abc6;
+      }
+      .track {
+        height: 7px;
+        border-radius: 8px;
+        background: #293b50;
+        overflow: hidden;
+      }
+      .bar {
+        height: 100%;
+        width: 0;
+        background: var(--accent);
+        transition: width 0.18s linear;
+      }
+      footer {
+        margin-top: 9px;
+        font-size: 11px;
+        color: #91abc6;
+      }
+      body[data-color="blue"] .meter {
+        --accent: #75baff;
+      }
+      body[data-color="amber"] .meter {
+        --accent: #ffca71;
+      }
+      body[data-layout="compact"] .meter {
+        padding: 12px 16px;
+      }
+      body[data-layout="compact"] strong {
+        font-size: 32px;
+      }
+      body[data-surface="solid"] {
+        background: #101c2d;
+      }
+      .offline strong {
+        color: #a4b3c3;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="meter" id="meter">
+      <header>
+        <span>WoWs · 联动指令</span><span class="tag" id="mode">正在连接</span>
+      </header>
+      <div class="numbers">
+        <strong id="value">—</strong><small id="limit"></small>
+      </div>
+      <div class="track"><div class="bar" id="bar"></div></div>
+      <footer>
+        <span id="detail">等待控制台状态</span><span>非设备实测值</span>
+      </footer>
+    </article>
+    <script>
+      const q = new URLSearchParams(location.search),
+        $ = (id) => document.getElementById(id);
+      for (const [key, allowed] of Object.entries({
+        color: ["teal", "blue", "amber"],
+        layout: ["normal", "compact"],
+        surface: ["transparent", "solid"],
+      })) {
+        let v = q.get(key);
+        if (allowed.includes(v)) document.body.dataset[key] = v;
+      }
+      function show(s) {
+        const available = s.connected && !s.manual && s.sent !== null;
+        let value = available ? s.sent : null;
+        $("value").textContent = value === null ? "—" : value;
+        $("limit").textContent = "上限 " + s.limit;
+        $("mode").textContent = (s.dry_run ? "模拟 · " : "") + s.mode;
+        $("detail").textContent = s.manual
+          ? "设备设置由 Hub 管理"
+          : s.connected
+            ? "控制器最近已发送值"
+            : "Hub 暂不可达";
+        $("bar").style.width =
+          available && s.limit > 0
+            ? Math.max(0, Math.min(100, (value / s.limit) * 100)) + "%"
+            : "0%";
+        $("meter").classList.toggle("offline", !available);
+      }
+      if (q.get("demo") === "1") {
+        show({
+          connected: true,
+          manual: false,
+          sent: 37,
+          limit: 100,
+          mode: "样式演示",
+          dry_run: true,
+        });
+        $("detail").textContent = "演示数据 · 未连接硬件";
+      } else {
+        const events = new EventSource("/api/overlay/events");
+        events.onmessage = (e) => {
+          try {
+            show(JSON.parse(e.data));
+          } catch {}
+        };
+        events.onerror = () => {
+          $("value").textContent = "—";
+          $("mode").textContent = "控制台离线";
+          $("detail").textContent = "正在自动重新连接";
+          $("bar").style.width = "0%";
+          $("meter").classList.add("offline");
+        };
+        window.addEventListener("pagehide", () => events.close());
+      }
+    </script>
+  </body>
+</html>

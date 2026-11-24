@@ -1,0 +1,10 @@
+config.yaml
+.env*
+logs/
+backups/
+data/
+__pycache__/
+.venv/
+python_env/
+site-packages/
+coyote-game-hub-windows-amd64-dist/

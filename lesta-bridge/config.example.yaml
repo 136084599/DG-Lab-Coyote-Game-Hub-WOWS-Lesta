@@ -1,0 +1,14 @@
+log_path: ./demo/damage_log.txt
+shock:
+  minBaseStrength: 0
+  maxStrength: 0
+  defaultPulseId: null
+hub:
+  api_url: http://127.0.0.1:8920/
+  client_id: ""
+  Segment:
+    - [0, 0]
+    - [100, 0]
+  randomize_strength_range: [0, 0]
+  decay:
+    min_strength: 0

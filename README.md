@@ -2,7 +2,7 @@
 
 这是 [Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub) 的莱服集成版。Hub 负责设备连接。桥接读取莱服的战局日志，提供规则控制台、波形导入和直播状态。
 
-**[安装与离线模拟](lesta-bridge/README.md)** · [更新记录](lesta-bridge/CHANGELOG.md) · [上游 Hub 下载](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub/releases)
+**[最新莱服源码 Release](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/tag/lesta-2026.11.19-r1)** · [安装与离线模拟](lesta-bridge/README.md) · [更新记录](lesta-bridge/CHANGELOG.md) · [上游 Hub 下载](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub/releases)
 
 ## 当前版本
 

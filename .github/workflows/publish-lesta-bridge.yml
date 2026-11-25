@@ -13,33 +13,26 @@ jobs:
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
-      TAG: lesta-2026.11.19-r1
+      TAG: lesta-2026.11.19-r2
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-      - name: Publish the reviewed bridge or clarify its existing release notes
+      - name: Package and publish the verified bridge
         shell: bash
         run: |
           set -euo pipefail
-          notes=$(cat <<'LESTA_RELEASE_NOTES'
-          **此 Release 提供莱服桥接源码包。** 包内带示例配置、示例日志、采集插件源码、波形导入补丁。Release 另附 SHA-256 校验文件。
-
-          - **离线模拟**只需要 Python 3.13+ 和桥接 ZIP，无需 Hub 或设备。
-          - **实际联动**需要单独运行兼容的 Coyote Game Hub。已有 Hub 可复用。Hub 程序和原版二维码解码资源由配套 Hub 提供。
-          - **波形补丁**只适用于脚本验证通过的 Hub 1.5.0 构建。仓库根目录的 Hub 源码标为 2.0.0，尚未做此版本的实机联动验证。
-
-          [安装、离线模拟与 Hub 兼容性](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/blob/main/lesta-bridge/README.md) · [上游 Hub 发布页](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub/releases)
-          LESTA_RELEASE_NOTES
-          )
-          if current_notes=$(gh release view "$TAG" --json body --jq .body); then
-            if [[ "$current_notes" == '11 月 19 日桥接源码，附安全示例、离线运行说明、波形导入修复和校验值。Hub 运行时、配对信息、实际配置与日志单独保管。' ]]; then
-              gh release edit "$TAG" --notes "$notes"
-            fi
-            exit 0
-          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then exit 0; fi
+          test "$(git rev-parse HEAD:lesta-bridge)" = '07d2b5ea5940917b025f2ddad8ef2980864ce69a'
           git archive --format=zip --prefix=lesta-bridge/ HEAD:lesta-bridge > lesta-coyote-bridge-source.zip
           sha256sum lesta-coyote-bridge-source.zip > SHA256SUMS.txt
           gh release create "$TAG" lesta-coyote-bridge-source.zip SHA256SUMS.txt \
-            --target "$GITHUB_SHA" --title '莱服郊狼桥接 · 2026-11-19 源码版' \
-            --notes "$notes"
+            --target "$GITHUB_SHA" --latest --title '莱服郊狼桥接 · Windows 快速启动与使用手册' --notes-file - <<'NOTES'
+          下载 `lesta-coyote-bridge-source.zip` 后先解压。此版带 Windows 启动器和按功能写的完整手册。启动器会复用目录中的 `python_env` 或 `.venv`，也可使用系统 Python。
+          
+          - **离线模拟**需要 Python 3.13+ 与桥接依赖。按包内 README 复制示例配置并运行 `start.bat --dry-run`，默认只监听本机，示例输出上限为 0。
+          - **真实联动**需要独立运行的兼容 Hub，已有 Hub 可复用。波形补丁只适用于脚本通过验证的 Hub 1.5.0 构建。
+          - **使用手册**覆盖游戏采集、事件规则、波形库、配置方案、调参实验室、OBS 和故障诊断。
+          
+          [完整使用教程](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/blob/main/lesta-bridge/README.md)
+          NOTES

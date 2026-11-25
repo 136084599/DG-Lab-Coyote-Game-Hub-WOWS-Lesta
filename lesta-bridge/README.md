@@ -2,9 +2,13 @@
 
 桥接读取《船舶世界》战局日志，经 Coyote Game Hub 的游戏接口提供事件联动。控制台默认只监听本机 `127.0.0.1:8080`。
 
-[Release 下载与校验](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/latest) · [项目首页](../README.md) · [更新记录](CHANGELOG.md)
+**[Windows 懒人包](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/tag/lesta-2026.11.19-windows-r1)** · [桥接源码与校验](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/tag/lesta-2026.11.19-r2) · [项目首页](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta) · [更新记录](CHANGELOG.md)
 
 ## Windows 快速启动
+
+下载懒人包后完整解压，双击 `Start-Demo.cmd` 先试离线。双击 `Start.cmd` 可启动包内 Hub 和桥接。需要在自己的莱服安装采集时，按下文的游戏与设备步骤操作。懒人包已具备 Python、Hub、Node.js 和采集插件。
+
+### 仅使用桥接源码时
 
 先解压 `lesta-coyote-bridge-source.zip`，在解压后的 `lesta-bridge` 目录打开 PowerShell。新电脑先准备 [Python 3.13+](https://www.python.org/downloads/) 并运行下面的命令。若原整合目录已经有可用的 `python_env`，可以直接运行启动器。
 
@@ -46,7 +50,7 @@ if (-not (Test-Path $demo)) {
 
 ## 配套 Hub 与波形导入
 
-先确认 Hub 提供 `/api/v2/game/…` 接口。波形补丁只适用于核对过的 Hub 1.5.0 构建。现有上游公开发布页未列该构建，页面列出的 2.0.0 尚未做此桥接的实机验证。Hub 的原版 JavaScript 解码器和 ZXing WASM 随匹配构建提供。
+先确认 Hub 提供 `/api/v2/game/…` 接口。波形补丁只适用于核对过的 Hub 1.5.0 构建。已确认上游正式 v2.0.0 Windows ZIP 的程序哈希匹配，该包的内部元数据仍使用 1.5.0。懒人包已经应用波形补丁。游戏与设备输出还需要实机验证。Hub 的原版 JavaScript 解码器和 ZXing WASM 随匹配构建提供。
 
 在桥接目录运行以下兼容性检查，将路径替换为包含 `server/index.js` 和 `public/` 的 Hub 程序目录。
 

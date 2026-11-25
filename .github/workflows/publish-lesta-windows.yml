@@ -1,0 +1,39 @@
+name: Publish the verified Windows portable bundle
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish-lesta-windows.yml']
+permissions:
+  contents: write
+jobs:
+  portable:
+    if: github.repository == '136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: lesta-2026.11.19-windows-r1
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build clean Windows bundle
+        run: python packaging/windows/build_windows_portable.py --source lesta-bridge --cache "${{ runner.temp }}/lesta-inputs" --output dist --license LICENSE
+      - name: Test unpacked Windows bundle
+        run: python packaging/windows/verify_windows_portable.py dist/Lesta-Coyote-Windows-x64-Portable.zip
+      - name: Publish portable bundle
+        shell: pwsh
+        run: |
+          gh release view $env:TAG | Out-Null
+          if ($LASTEXITCODE -eq 0) { exit 0 }
+          @'
+          解压后双击 **Start-Demo.cmd**，可以离线查看联动控制台。准备接入自己安装的莱服时，在退出离线控制台后双击 **Start.cmd**，再通过「战局与规则」安装 BattleRecorder。安装会补齐 ModsAPI 加载标记并备份旧采集插件。
+
+          此 ZIP 自带 Windows x64 Python 与依赖、Hub、Node.js、采集插件及安装入口，首次配置的输出上限为 0。无需另外下载 Hub 或 Python。已验证离线与正常启动、Hub 接口及模拟游戏目录的插件安装。实际游戏与设备需在使用者环境确认。
+
+          [懒人包使用说明](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/blob/main/packaging/windows/PORTABLE-README.md) · [桥接源码 Release](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/tag/lesta-2026.11.19-r2)
+          '@ | Set-Content -LiteralPath release-notes.md -Encoding utf8
+          gh release create $env:TAG dist/Lesta-Coyote-Windows-x64-Portable.zip dist/SHA256SUMS.txt --target $env:GITHUB_SHA --latest --title "莱服郊狼 Windows x64 懒人包" --notes-file release-notes.md
+          exit $LASTEXITCODE

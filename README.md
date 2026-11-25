@@ -1,19 +1,23 @@
 # DG-Lab 郊狼 · 船舶世界莱服联动
 
-这是 [Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub) 的莱服集成版。Hub 负责设备连接。桥接读取莱服的战局日志，提供规则控制台、波形导入和直播状态。
+这个 fork 同时保存 [Coyote Game Hub](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub) 的源码和莱服桥接。Hub 负责连接设备，桥接读取莱服战局日志并提供规则控制台、波形导入和直播状态。
 
-**[最新莱服源码 Release](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/tag/lesta-2026.11.19-r1)** · [安装与离线模拟](lesta-bridge/README.md) · [更新记录](lesta-bridge/CHANGELOG.md) · [上游 Hub 下载](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub/releases)
+**接真机需要一个单独运行的兼容 Hub。** 当前 Release 的 `lesta-coyote-bridge-source.zip` 只装了莱服桥接，Hub 程序和原版二维码解码资源由配套 Hub 提供。已有兼容 Hub 可以继续使用。离线模拟只需要桥接和 Python 3.13+。
 
-## 当前版本
+[下载莱服桥接源码包](https://github.com/136084599/DG-Lab-Coyote-Game-Hub-WOWS-Lesta/releases/tag/lesta-2026.11.19-r1) · [安装与离线模拟](lesta-bridge/README.md) · [更新记录](lesta-bridge/CHANGELOG.md) · [上游 Hub 发布页](https://github.com/hyperzlib/DG-Lab-Coyote-Game-Hub/releases)
 
-已加入本地 2026-11-19 版桥接。新版含波形文本及二维码导入，以及查询私有波形时保护公共列表的 Hub 1.5.0 兼容修复。补丁按 SHA-256 确认匹配的 Hub 构建。
+## 下载和使用
 
-## 第一次运行
+| 我想做什么 | 用哪个包 | 还需要什么 |
+| --- | --- | --- |
+| 离线看控制台或模拟战局 | 下载 `lesta-coyote-bridge-source.zip` | Python 3.13+。包内示例日志的输出上限为 0 |
+| 玩莱服并联动郊狼设备 | 使用同一个桥接源码包 | 独立运行的兼容 Hub、已配对设备和游戏内的战局日志采集插件 |
+| 查看或维护 Hub 源码 | 拉取本仓库，或下载 GitHub 自动生成的 `Source code (zip)` | 根目录的 `frontend/` 和 `server/` 是 Hub 源码，`lesta-bridge/` 是桥接源码 |
 
-在 `lesta-bridge/` 按说明安装 Python 依赖并复制示例配置。可以先启动离线模拟，示例输出上限为 0，无需连接设备。接入实际设备前按指南安装配套 Hub，并在自己的环境核对设备、规则和接口配置。
+## Hub 兼容性
+
+桥接通过 Hub 的 `/api/v2/game/…` 接口工作。这里的 V2 指接口版本。随桥接提供的波形补丁只匹配已核对的 Hub 1.5.0 构建，安装前的 SHA-256 和资源检查以[桥接指南](lesta-bridge/README.md#配套-hub-与波形导入)为准。仓库根目录的 Hub 源码标为 2.0.0。这个版本和其他 Hub 构建的实际设备联动尚未验证。
 
 已在隔离环境运行 Python 测试和波形解析测试。真实游戏训练场、蓝牙连接及硬件输出需要另行验收。
 
-根目录保留 Hub fork 源码和上游历史。莱服模块在 [`lesta-bridge/`](lesta-bridge/)。[早期莱服桥接仓](https://github.com/136084599/wows_dglab-lesta)用于对照。许可见 [LICENSE](LICENSE)。
-
-公开范围为源码、限定版本的兼容补丁和示例配置。实际账号、设备配对、个人波形、现网地址和日志保留在部署环境。
+[早期莱服桥接仓](https://github.com/136084599/wows_dglab-lesta)用于对照。许可见 [LICENSE](LICENSE)。实际账号、设备配对、个人波形、现网地址和日志保留在部署环境。
